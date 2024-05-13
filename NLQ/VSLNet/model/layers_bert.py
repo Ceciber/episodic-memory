@@ -146,8 +146,8 @@ class Embedding(nn.Module):
         self.char_emb = CharacterEmbedding(num_chars, char_dim, drop_rate)
         # output linear layer
         self.linear = Conv1D(
-            """ Adjust the input dimension of the linear layer to match the dimension of the BERT embeddings plus the dimension of character embeddings 
-            100 in this case, which is the sum of the output channels from the character CNNs) """
+            # Adjust the input dimension of the linear layer to match the dimension of the BERT embeddings plus the dimension of character embeddings 
+            # 100 in this case, which is the sum of the output channels from the character CNNs) 
             in_dim=self.bert_emb.bert_model.config.hidden_size + 100,
             out_dim=out_dim,
             kernel_size=1,
