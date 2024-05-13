@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from transformers import AdamW, get_linear_schedule_with_warmup
 
-from model.layers import (
+from model.layers_bert import (
     Embedding,
     VisualProjection,
     FeatureEncoder,
