@@ -165,7 +165,7 @@ class Embedding(nn.Module):
         emb = self.linear(emb)  # (batch_size, w_seq_len, dim)
         return emb
 
-
+# The purpose of this class is to construct positional embeddings, which are independent of the type of word embeddings used
 class PositionalEmbedding(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
