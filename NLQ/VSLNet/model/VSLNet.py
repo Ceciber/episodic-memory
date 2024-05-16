@@ -87,6 +87,13 @@ class VSLNet(nn.Module):
             # init parameters
             self.init_parameters()
             self.embedding_net = BertEmbedding(configs.text_agnostic) """
+        # Debugging
+        print("Word size:", configs.word_size)
+        print("Char size:", configs.char_size)
+        print("Word dim:", configs.word_dim)
+        print("Char dim:", configs.char_dim)
+        print("Creating Embedding module...")
+        
         self.embedding_net = Embedding(
                 num_words=configs.word_size,
                 num_chars=configs.char_size,
