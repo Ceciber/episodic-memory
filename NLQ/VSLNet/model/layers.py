@@ -32,9 +32,12 @@ class Conv1D(nn.Module):
         return x.transpose(1, 2)  # (batch_size, seq_len, dim)
 
 
-class WordEmbedding(nn.Module):
+class WordEmbedding(nn.Module):    
     def __init__(self, num_words, word_dim, drop_rate, word_vectors=None):
         super(WordEmbedding, self).__init__()
+        # DEBUGGING
+        print("num_words:", num_words)
+        print("word_dim:", word_dim)
         self.is_pretrained = False if word_vectors is None else True
         if self.is_pretrained:
             self.pad_vec = nn.Parameter(
@@ -50,6 +53,7 @@ class WordEmbedding(nn.Module):
                 torch.tensor(word_vectors, dtype=torch.float32), requires_grad=False
             )
         else:
+            
             self.word_emb = nn.Embedding(num_words, word_dim, padding_idx=0)
         self.dropout = nn.Dropout(p=drop_rate)
 
