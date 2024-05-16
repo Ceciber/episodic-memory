@@ -134,7 +134,7 @@ def main(configs, parser):
                     e_labels.to(device),
                     h_labels.to(device),
                 )
-                if configs.predictor == "bert":
+                """ if configs.predictor == "bert":
                     word_ids = {key: val.to(device) for key, val in word_ids.items()}
                     # generate mask
                     query_mask = (
@@ -144,13 +144,12 @@ def main(configs, parser):
                         )
                         .float()
                         .to(device)
-                    )
-                else:
-                    word_ids, char_ids = word_ids.to(device), char_ids.to(device)
-                    # generate mask
-                    query_mask = (
-                        (torch.zeros_like(word_ids) != word_ids).float().to(device)
-                    )
+                    ) """
+                word_ids, char_ids = word_ids.to(device), char_ids.to(device)
+                # generate mask
+                query_mask = (
+                (torch.zeros_like(word_ids) != word_ids).float().to(device)
+                )
                 # generate mask
                 video_mask = convert_length_to_mask(vfeat_lens).to(device)
                 # compute logits
