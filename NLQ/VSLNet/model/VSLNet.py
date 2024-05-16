@@ -81,14 +81,13 @@ class VSLNet(nn.Module):
         )
 
         # If pretrained transformer, initialize_parameters and load.
-        if configs.predictor == "bert":
+        """ if configs.predictor == "bert":
             # Project back from BERT to dim.
             self.query_affine = nn.Linear(768, configs.dim)
             # init parameters
             self.init_parameters()
-            self.embedding_net = BertEmbedding(configs.text_agnostic)
-        else:
-            self.embedding_net = Embedding(
+            self.embedding_net = BertEmbedding(configs.text_agnostic) """
+        self.embedding_net = Embedding(
                 num_words=configs.word_size,
                 num_chars=configs.char_size,
                 out_dim=configs.dim,
@@ -96,9 +95,9 @@ class VSLNet(nn.Module):
                 char_dim=configs.char_dim,
                 word_vectors=word_vectors,
                 drop_rate=configs.drop_rate,
-            )
-            # init parameters
-            self.init_parameters()
+        )
+        # init parameters
+        self.init_parameters()
 
     def init_parameters(self):
         def init_weights(m):
@@ -117,11 +116,10 @@ class VSLNet(nn.Module):
 
     def forward(self, word_ids, char_ids, video_features, v_mask, q_mask):
         video_features = self.video_affine(video_features)
-        if self.configs.predictor == "bert":
+        """ if self.configs.predictor == "bert":
             query_features = self.embedding_net(word_ids)
-            query_features = self.query_affine(query_features)
-        else:
-            query_features = self.embedding_net(word_ids, char_ids)
+            query_features = self.query_affine(query_features) """
+        query_features = self.embedding_net(word_ids, char_ids)
 
         query_features = self.feature_encoder(query_features, mask=q_mask)
         video_features = self.feature_encoder(video_features, mask=v_mask)
