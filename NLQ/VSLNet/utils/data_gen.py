@@ -50,10 +50,10 @@ class EpisodicNLQProcessor:
             for timestamp, exact_time, sentence, ann_uid, query_idx in zipper:
                 start_time = max(0.0, float(timestamp[0]) / fps)
                 end_time = min(float(timestamp[1]) / fps, duration)
-                if self._predictor != "bert":
-                    words = word_tokenize(sentence.strip().lower(), language="english")
-                else:
-                    words = sentence
+                """if self._predictor != "bert":
+                    words = word_tokenize(sentence.strip().lower(), language="english")"""
+        
+                words = sentence
                 record = {
                     "sample_id": self.idx_counter,
                     "vid": str(vid),
@@ -331,7 +331,7 @@ def gen_or_load_dataset(configs):
         if val_data is None
         else [train_data, val_data, test_data]
     )
-    if configs.predictor == "bert":
+    """ if configs.predictor == "bert":
         from transformers import BertTokenizer, BertForPreTraining
 
         tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
@@ -370,10 +370,9 @@ def gen_or_load_dataset(configs):
             "n_train": len(train_set),
             "n_val": n_val,
             "n_test": len(test_set),
-        }
-    else:
-        word_dict, char_dict, vectors = vocab_emb_gen(data_list, emb_path)
-        train_set = dataset_gen(
+        } """
+    word_dict, char_dict, vectors = vocab_emb_gen(data_list, emb_path)
+    train_set = dataset_gen(
             train_data,
             vfeat_lens,
             word_dict,
