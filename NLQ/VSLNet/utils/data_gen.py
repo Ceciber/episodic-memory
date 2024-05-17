@@ -319,103 +319,105 @@ def gen_or_load_dataset(configs):
     vfeat_lens = load_json(feat_len_path)
     for vid, vfeat_len in vfeat_lens.items():
         vfeat_lens[vid] = min(configs.max_pos_len, vfeat_len)
-    # load data
-    processor = EpisodicNLQProcessor(configs.remove_empty_queries_from)
+# load data
+processor = EpisodicNLQProcessor(configs.remove_empty_queries_from)
 
-    train_data, val_data, test_data = processor.convert(
-        data_dir, predictor=configs.predictor
-    )
-    # generate dataset
-    data_list = (
-        [train_data, test_data]
-        if val_data is None
-        else [train_data, val_data, test_data]
-    )
-    """ if configs.predictor == "bert":
-        from transformers import BertTokenizer, BertForPreTraining
+train_data, val_data, test_data = processor.convert(
+    data_dir, predictor=configs.predictor
+)
+# generate dataset
+data_list = (
+    [train_data, test_data]
+    if val_data is None
+    else [train_data, val_data, test_data]
+)
+""" 
+if configs.predictor == "bert":
+    from transformers import BertTokenizer, BertForPreTraining
 
-        tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        train_set = dataset_gen_bert(
-            train_data,
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    train_set = dataset_gen_bert(
+        train_data,
+        vfeat_lens,
+        tokenizer,
+        configs.max_pos_len,
+        "train",
+        num_workers=configs.num_workers,
+    )
+    if val_data:
+        val_set = dataset_gen_bert(
+            val_data,
             vfeat_lens,
             tokenizer,
             configs.max_pos_len,
-            "train",
+            "val",
             num_workers=configs.num_workers,
         )
-        if val_data:
-            val_set = dataset_gen_bert(
-                val_data,
-                vfeat_lens,
-                tokenizer,
-                configs.max_pos_len,
-                "val",
-                num_workers=configs.num_workers,
-            )
-        else:
-            val_set = None
-        test_set = dataset_gen_bert(
-            test_data,
-            vfeat_lens,
-            tokenizer,
-            configs.max_pos_len,
-            "test",
-            num_workers=configs.num_workers,
-        )
-        n_val = 0 if val_set is None else len(val_set)
-        dataset = {
-            "train_set": train_set,
-            "val_set": val_set,
-            "test_set": test_set,
-            "n_train": len(train_set),
-            "n_val": n_val,
-            "n_test": len(test_set),
-        } """
-    word_dict, char_dict, vectors = vocab_emb_gen(data_list, emb_path)
-    train_set = dataset_gen(
-            train_data,
-            vfeat_lens,
-            word_dict,
-            char_dict,
-            configs.max_pos_len,
-            "train",
-            num_workers=configs.num_workers,
-        )
-        if val_data:
-            val_set = dataset_gen(
-                val_data,
-                vfeat_lens,
-                word_dict,
-                char_dict,
-                configs.max_pos_len,
-                "val",
-                num_workers=configs.num_workers,
-            )
-        else:
-            val_set = None
-        test_set = dataset_gen(
-            test_data,
-            vfeat_lens,
-            word_dict,
-            char_dict,
-            configs.max_pos_len,
-            "test",
-            num_workers=configs.num_workers,
-        )
-        # save dataset
-        n_val = 0 if val_set is None else len(val_set)
-        dataset = {
-            "train_set": train_set,
-            "val_set": val_set,
-            "test_set": test_set,
-            "word_dict": word_dict,
-            "char_dict": char_dict,
-            "word_vector": vectors,
-            "n_train": len(train_set),
-            "n_val": n_val,
-            "n_test": len(test_set),
-            "n_words": len(word_dict),
-            "n_chars": len(char_dict),
-        }
-    save_pickle(dataset, save_path)
-    return dataset
+    else:
+        val_set = None
+    test_set = dataset_gen_bert(
+        test_data,
+        vfeat_lens,
+        tokenizer,
+        configs.max_pos_len,
+        "test",
+        num_workers=configs.num_workers,
+    )
+    n_val = 0 if val_set is None else len(val_set)
+    dataset = {
+        "train_set": train_set,
+        "val_set": val_set,
+        "test_set": test_set,
+        "n_train": len(train_set),
+        "n_val": n_val,
+        "n_test": len(test_set),
+    } 
+"""
+word_dict, char_dict, vectors = vocab_emb_gen(data_list, emb_path)
+train_set = dataset_gen(
+    train_data,
+    vfeat_lens,
+    word_dict,
+    char_dict,
+    configs.max_pos_len,
+    "train",
+    num_workers=configs.num_workers,
+)
+if val_data:
+    val_set = dataset_gen(
+        val_data,
+        vfeat_lens,
+        word_dict,
+        char_dict,
+        configs.max_pos_len,
+        "val",
+        num_workers=configs.num_workers,
+    )
+else:
+    val_set = None
+test_set = dataset_gen(
+    test_data,
+    vfeat_lens,
+    word_dict,
+    char_dict,
+    configs.max_pos_len,
+    "test",
+    num_workers=configs.num_workers,
+)
+# save dataset
+n_val = 0 if val_set is None else len(val_set)
+dataset = {
+    "train_set": train_set,
+    "val_set": val_set,
+    "test_set": test_set,
+    "word_dict": word_dict,
+    "char_dict": char_dict,
+    "word_vector": vectors,
+    "n_train": len(train_set),
+    "n_val": n_val,
+    "n_test": len(test_set),
+    "n_words": len(word_dict),
+    "n_chars": len(char_dict),
+}
+save_pickle(dataset, save_path)
+return dataset
