@@ -290,90 +290,45 @@ def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_worker
 def gen_or_load_dataset(configs):
     if not os.path.exists(configs.save_dir):
         os.makedirs(configs.save_dir)
+    
     data_dir = os.path.join("data", "dataset", configs.task)
     feature_dir = os.path.join("data", "features", configs.task, configs.fv)
+    
     if configs.suffix is None:
         save_path = os.path.join(
             configs.save_dir,
-            "_".join(
-                [configs.task, configs.fv, str(configs.max_pos_len), configs.predictor]
-            )
-            + ".pkl",
+            "_".join([configs.task, configs.fv, str(configs.max_pos_len), configs.predictor]) + ".pkl"
         )
     else:
         save_path = os.path.join(
             configs.save_dir,
-            "_".join(
-                [configs.task, configs.fv, str(configs.max_pos_len), configs.suffix]
-            )
-            + ".pkl",
+            "_".join([configs.task, configs.fv, str(configs.max_pos_len), configs.suffix]) + ".pkl"
         )
+    
     if os.path.exists(save_path):
         print(f"Loading data from existing save path {save_path}", flush=True)
         dataset = load_pickle(save_path)
         return dataset
+    
     print("Generating data for dataloader", flush=True)
+    
     feat_len_path = os.path.join(feature_dir, "feature_shapes.json")
     emb_path = os.path.join("data", "features", "glove.840B.300d.txt")
-    # load video feature length
+    
+    # Load video feature length
     vfeat_lens = load_json(feat_len_path)
     for vid, vfeat_len in vfeat_lens.items():
         vfeat_lens[vid] = min(configs.max_pos_len, vfeat_len)
-    # load data
+    
+    # Load data
     processor = EpisodicNLQProcessor(configs.remove_empty_queries_from)
+    train_data, val_data, test_data = processor.convert(data_dir, predictor=configs.predictor)
     
-    train_data, val_data, test_data = processor.convert(
-        data_dir, predictor=configs.predictor
-    )
-    # generate dataset
-    data_list = (
-        [train_data, test_data]
-        if val_data is None
-        else [train_data, val_data, test_data]
-    )
-    """ 
-    if configs.predictor == "bert":
-        from transformers import BertTokenizer, BertForPreTraining
+    # Generate dataset
+    data_list = [train_data, test_data] if val_data is None else [train_data, val_data, test_data]
     
-        tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        train_set = dataset_gen_bert(
-            train_data,
-            vfeat_lens,
-            tokenizer,
-            configs.max_pos_len,
-            "train",
-            num_workers=configs.num_workers,
-        )
-        if val_data:
-            val_set = dataset_gen_bert(
-                val_data,
-                vfeat_lens,
-                tokenizer,
-                configs.max_pos_len,
-                "val",
-                num_workers=configs.num_workers,
-            )
-        else:
-            val_set = None
-        test_set = dataset_gen_bert(
-            test_data,
-            vfeat_lens,
-            tokenizer,
-            configs.max_pos_len,
-            "test",
-            num_workers=configs.num_workers,
-        )
-        n_val = 0 if val_set is None else len(val_set)
-        dataset = {
-            "train_set": train_set,
-            "val_set": val_set,
-            "test_set": test_set,
-            "n_train": len(train_set),
-            "n_val": n_val,
-            "n_test": len(test_set),
-        } 
-    """
     word_dict, char_dict, vectors = vocab_emb_gen(data_list, emb_path)
+    
     train_set = dataset_gen(
         train_data,
         vfeat_lens,
@@ -381,8 +336,9 @@ def gen_or_load_dataset(configs):
         char_dict,
         configs.max_pos_len,
         "train",
-        num_workers=configs.num_workers,
+        num_workers=configs.num_workers
     )
+    
     if val_data:
         val_set = dataset_gen(
             val_data,
@@ -391,10 +347,11 @@ def gen_or_load_dataset(configs):
             char_dict,
             configs.max_pos_len,
             "val",
-            num_workers=configs.num_workers,
+            num_workers=configs.num_workers
         )
     else:
         val_set = None
+    
     test_set = dataset_gen(
         test_data,
         vfeat_lens,
@@ -402,9 +359,10 @@ def gen_or_load_dataset(configs):
         char_dict,
         configs.max_pos_len,
         "test",
-        num_workers=configs.num_workers,
+        num_workers=configs.num_workers
     )
-    # save dataset
+    
+    # Save dataset
     n_val = 0 if val_set is None else len(val_set)
     dataset = {
         "train_set": train_set,
@@ -417,7 +375,8 @@ def gen_or_load_dataset(configs):
         "n_val": n_val,
         "n_test": len(test_set),
         "n_words": len(word_dict),
-        "n_chars": len(char_dict),
+        "n_chars": len(char_dict)
     }
-save_pickle(dataset, save_path)
-return dataset
+    
+    save_pickle(dataset, save_path)
+    return dataset
