@@ -312,7 +312,7 @@ def gen_or_load_dataset(configs):
     
     print("Generating data for dataloader", flush=True)
     
-    feat_len_path = os.path.join(feature_dir, "feature_shapes.json")
+    feat_len_path = os.path.join(feature_dir, "metadata.json")
     emb_path = os.path.join("data", "features", "glove.840B.300d.txt")
     
     # Load video feature length
